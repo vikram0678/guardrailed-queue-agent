@@ -1,13 +1,10 @@
 # Environment variables and secrets (NEVER commit to git)
 .env
-*.env
-!.env.example
+
 
 # Python virtual environment
 .venv/
-venv/
-ENV/
-env/
+
 
 # Python bytecode and caches
 __pycache__/
@@ -25,5 +22,3 @@ app.db
 .idea/
 .DS_Store
 Thumbs.db
-
-.env

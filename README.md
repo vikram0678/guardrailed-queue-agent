@@ -1,6 +1,6 @@
-# Guardrailed Queue Management Agent
+# Guardrailed Queue Agent
 
-A reliable social media queue management agent built with **LangGraph**, **SQLite**, and **LangSmith**. It enforces structural safety guardrails around AI state mutations through **progressive autonomy** and **reversible actions (event-sourcing undo logs)**.
+A social media queue management agent built with **LangGraph**, **SQLite**, and **LangSmith**. It enforces structural safety guardrails around AI state mutations through **progressive autonomy** and **reversible actions (event-sourcing undo logs)**.
 
 ---
 
@@ -40,9 +40,64 @@ guardrailed-queue-agent/
 
 ---
 
-## Quickstart (Local Setup)
+## Getting Started
 
-### 1. Set Up Virtual Environment
+### 1. Clone the Repository
+```bash
+git clone https://github.com/vikram0678/guardrailed-queue-agent.git
+cd guardrailed-queue-agent
+```
+
+### 2. Configure Environment
+```bash
+cp .env.example .env
+```
+*(All tests and simulations run 100% offline and locally out-of-the-box. Adding OpenAI or OpenRouter keys in `.env` is optional for live model calling).*
+
+---
+
+## Method 1: Running with Docker (Recommended)
+
+### 1. Build and Start Container
+```bash
+docker compose up --build -d
+```
+
+### 2. Check Container Health
+```bash
+docker compose ps
+```
+
+### 3. Run Unit Tests Inside Docker
+```bash
+docker compose exec app pytest -v tests/
+```
+
+### 4. Run Adversarial Safety Simulation Inside Docker
+Simulates the Replit failure scenario with an untrusted agent ($N=0$) and ambiguous cleanup instruction:
+```bash
+docker compose exec app python tests/simulate_failure.py
+```
+
+### 5. Run Interactive Agent Inside Docker
+```bash
+# Seed the database
+docker compose exec app python -m src.agent --seed
+
+# Run instruction with live human-in-the-loop approval (type 'y' when prompted)
+docker compose exec -it app python -m src.agent "Publish all pending posts"
+```
+
+### 6. Stop Container
+```bash
+docker compose down
+```
+
+---
+
+## Method 2: Running Locally with Python Virtual Environment
+
+### 1. Create and Activate Virtual Environment
 ```bash
 # Windows
 python -m venv .venv
@@ -58,68 +113,26 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Configure Environment
-```bash
-cp .env.example .env
-```
-*(Tests run 100% locally and offline. Adding OpenAI or OpenRouter keys in `.env` is optional for live model calling).*
-
----
-
-## Running the Tests
-
-### Unit Tests (Schema, Logging & Rollback)
+### 3. Run Unit Tests
 ```bash
 pytest -v tests/
 ```
 
-### Adversarial Failure Simulation
-Simulates the Replit disaster with an untrusted agent ($N=0$) and ambiguous cleanup instruction:
+### 4. Run Failure Simulation
 ```bash
 python tests/simulate_failure.py
 ```
 
----
-
-## CLI & Interactive Usage
-
-### 1. Seed Sample Posts
+### 5. Interactive CLI Usage
 ```bash
+# Seed sample posts
 python -m src.agent --seed
-```
 
-### 2. Run an Instruction (Interactive HITL Pause)
-```bash
+# Run agent instruction
 python -m src.agent "Publish all pending posts"
-```
-If trust is below threshold ($N < 3$), the CLI pauses and prompts:
-```text
-[APPROVAL REQUIRED] Action approval required for: [...]
-Proceed? (Y/N): 
-```
-Type `Y` to approve or `N` to reject.
 
-### 3. Restore a Mutated Record
-```bash
+# Restore a record by action ID
 python -m src.agent --restore <action_id_uuid>
-```
-
----
-
-## Docker Execution
-
-```bash
-# Build and run container in background
-docker-compose up --build -d
-
-# Run pytest inside container
-docker-compose exec app pytest tests/
-
-# Run simulation inside container
-docker-compose exec app python tests/simulate_failure.py
-
-# Stop container
-docker-compose down
 ```
 
 ---
