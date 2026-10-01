@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: guardrailed_queue_agent
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - DATABASE_PATH=/app/app.db
+    stdin_open: true
+    tty: true
